@@ -4,7 +4,7 @@
 import json
 import argparse
 from dotenv import load_dotenv
-import os
+import os.path
 import sys
 
 
@@ -56,40 +56,13 @@ def show_list(students):
 
 
 def show_selected(students):
-    # Инициализировать счетчик.
-    line = '+-{}-+-{}-+-{}-+-{}-+'.format(
-        '-' * 4,
-        '-' * 30,
-        '-' * 20,
-        '-' * 15
-    )
-    print(line)
-    print(
-        '| {:^4} | {:^30} | {:^20} | {:^15} |'.format(
-            "№",
-            "Ф.И.О.",
-            "Группа",
-            "Успеваемость"
-        )
-    )
-    print(line)
-    count = 0
     # Проверить сведения студентов из списка.
+    result = []
     for student in students:
         grade = [int(x) for x in (student.get('grade', '').split())]
         if sum(grade) / max(len(grade), 1) >= 4.0:
-            count += 1
-            print(
-                '| {:>4} | {:<30} | {:<20} | {:>15} |'.format(
-                    count,
-                    student.get('name', ''),
-                    student.get('group', ''),
-                    student.get('grade', 0)
-                )
-            )
-    print(line)
-    if count == 0:
-        print("Студенты с баллом 4.0 и выше не найдены.")
+            result.append(student)
+    return result
 
 
 def help_1():
@@ -216,7 +189,8 @@ def main(command_line=None):
         show_list(students)
     # Выбрать требуемых студентов.
     elif args.command == "select":
-        show_selected(students)
+        selected = show_selected(students)
+        show_list(selected)
 
     # Сохранить данные в файл, если список студентов был изменен.
     if is_dirty:
